@@ -5,409 +5,358 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page.title }}</title>
     <meta name="description" content="Ai Code Craft - development with passion" />
+    <!-- Including Bootstrap CSS for responsive design and layout -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <!-- Including Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
-:root {
-    --glass-bg: rgba(255,255,255,0.04);
-    --glass-border: rgba(255,255,255,0.08);
-    --glass-hover: rgba(255,255,255,0.07);
-    --glass-strong: rgba(255,255,255,0.10);
-    --accent: #58A6FF;
-    --accent-glow: rgba(88,166,255,0.18);
-    --accent-2: #3DDBD9;
-    --bg-base: #060A10;
-    --bg-surface: #0A0F18;
-    --text-primary: #E6EDF3;
-    --text-muted: #8B949E;
-    --plasma-1: rgba(88,166,255,0.06);
-    --plasma-2: rgba(61,219,217,0.04);
-    --plasma-3: rgba(163,113,247,0.05);
+/* General styles for the body, links, and buttons */
+        body {
+            background-color: #0D1117;
+            color: #C9D1D9;
+        }
+        a {
+            color: #58A6FF;
+        }
+        a:hover {
+            color: #1F6FEB;
+        }
+        .btn {
+            border-radius: 2px;
+        }
+        .close {
+            color: #58A6FF;
+            font-size: 1.5em;
+        }
+        /* Card styling to match the dark theme */
+        .card {
+            background-color: #161B22;
+            border: 1px solid #05172c;
+            border-radius: 2px;
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
+        }
+        /* Navbar styling for dark theme */
+        .navbar {
+            background-color: #161B22;
+        }
+
+        /* Typewriter nav links */
+        .nav-link-type {
+            display: inline-block;
+            overflow: hidden;
+            white-space: nowrap;
+            width: 0;
+            vertical-align: bottom;
+        }
+        .nav-link-type.typing-done {
+            border-right: 2px solid #58A6FF;
+            animation: cursor-fade 0.6s steps(1) 1.2s forwards;
+        }
+        @keyframes cursor-fade {
+            to { border-right-color: transparent; }
+        }
+        
+        /* Logo styling */
+        .logo {
+            margin-top: 15px;
+            width: 199px;
+            height: 50px;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        /* Social media links in the navbar */
+        .nav-social-links {
+            display: flex;
+            justify-content: flex-end;
+        }
+        .nav-social-links .nav-item {
+            margin-left: 15px;
+        }
+        .nav-social-links .nav-item a {
+            color: #000;
+            font-size: 16px;
+        }
+        .nav-social-links .nav-item a:hover {
+            color: #f00;
+        }
+        /* Navbar link styling */
+        .navbar-nav .nav-link {
+            color: #000;
+            font-size: 13px;
+        }
+        .navbar-nav .nav-link:hover {
+            color: #f00;
+        }
+        .navbar-nav .nav-item .fab {
+            color: #aba5a5;
+            font-size: 18px;
+        }
+        .navbar-nav .nav-item .fab:hover {
+            color: #f00;
+        }
+        /* Modal window styling */
+        .modal .modal-content {
+            background-color: #0D1117;
+            color: #C9D1D9;
+            border: 1px solid #05172c;
+            border-radius: 2px;
+        }
+        .modal .modal-header,
+        .modal .modal-footer {
+            border: none;
+        }
+        .modal-content p {
+            text-align: justify;
+        }
+        .modal-style-service {
+            list-style-type: none;
+        }
+        /* Heading styles */
+        h1,h2 {
+            font-size: 1.75rem;
+        }
+        h3,h4,h5 {
+            font-size: 1.45rem;
+        }
+        /* Footer styling */
+        footer {
+            background-color: #161B22;
+            padding: 20px 0;
+            color: #C9D1D9;
+            margin-top: 20px;
+        }
+        .footer-image {
+            height: 250px;
+            width: auto;
+            object-fit: cover;
+            margin: -50px 0;
+            border: 1px solid #C9D1D9;
+        }
+        .footer-card {
+            background-color: transparent;
+            border-bottom: 1px solid #05172c;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        footer h3 {
+            margin-top: 10px;
+            margin-bottom: 5px;
+            font-size: 1.2rem;
+        }
+        footer ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        footer ul li {
+            padding-bottom: 5px;
+        }
+        /* Copyright section styling */
+        .copyright-row {
+            background-color: #0D1117;
+            text-align: center;
+            font-size: 12px;
+            padding-top: 20px;
+        }
+
+/* Code highlighting styling for a dark theme */
+.highlight {
+    background-color: #21262D !important; /* Slightly lighter background for the code block */
+    color: #C9D1D9 !important; /* Light text for good contrast */
+    border-radius: 5px !important; /* Rounded corners for a softer look */
+    padding: 12px !important; /* Adequate padding for readability */
+    margin: 16px 0 !important; /* Space above and below to separate the code block */
+    overflow: auto !important; /* Scrollable if necessary */
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7) !important; /* Soft drop shadow */
 }
 
-*, *::before, *::after { box-sizing: border-box; }
-
-body {
-    background-color: var(--bg-base);
-    color: var(--text-primary);
-    font-family: 'Syne', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-    position: relative;
+/* Styling for actual code lines */
+.highlight pre {
+    background-color: transparent !important; /* No background for pre tag */
+    color: inherit !important; /* Inherits the parent element's color */
+    font-family: 'Fira Code', monospace !important; /* Monospace font for code */
+    font-size: 14px !important; /* Appropriate font size */
+    line-height: 1.6 !important; /* Good line height for readability */
+    margin: 0 !important; /* No extra space within the pre tag */
 }
 
-/* Plasma background blobs */
-body::before {
-    content: '';
-    position: fixed;
-    top: -20%;
-    left: -10%;
-    width: 60vw;
-    height: 60vw;
-    background: radial-gradient(ellipse, rgba(88,166,255,0.08) 0%, transparent 70%);
-    pointer-events: none;
-    z-index: 0;
-    animation: plasma-drift 18s ease-in-out infinite alternate;
-}
-body::after {
-    content: '';
-    position: fixed;
-    bottom: -20%;
-    right: -10%;
-    width: 55vw;
-    height: 55vw;
-    background: radial-gradient(ellipse, rgba(163,113,247,0.07) 0%, transparent 70%);
-    pointer-events: none;
-    z-index: 0;
-    animation: plasma-drift 24s ease-in-out infinite alternate-reverse;
+/* Styling for specific elements within the code */
+.highlight .hljs-keyword,
+.highlight .hljs-built_in,
+.highlight .hljs-literal,
+.highlight .hljs-symbol,
+.highlight .hljs-bullet,
+.highlight .hljs-link {
+    color: #FF7B72 !important; /* Highlight keywords in red */
 }
 
-@keyframes plasma-drift {
-    0%   { transform: translate(0,0) scale(1); }
-    50%  { transform: translate(3vw,2vw) scale(1.05); }
-    100% { transform: translate(-2vw,4vw) scale(0.97); }
+.highlight .hljs-string,
+.highlight .hljs-title,
+.highlight .hljs-name,
+.highlight .hljs-type,
+.highlight .hljs-attr {
+    color: #A5D6FF !important; /* Highlight strings and titles in blue */
 }
 
-/* Navbar */
-.navbar {
-    background: rgba(6,10,16,0.7) !important;
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border-bottom: 1px solid var(--glass-border);
-    position: relative;
-    z-index: 100;
+.highlight .hljs-comment,
+.highlight .hljs-quote {
+    color: #8B949E !important; /* Muted color for comments */
+    font-style: italic !important; /* Italicize comments */
 }
 
-.logo {
-    margin-top: 0;
-    width: 199px;
-    height: 50px;
-    position: relative;
-    top: 0;
-    transform: none;
+/* Fancy hover effects */
+.highlight:hover {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2) !important; /* Shadow effect on hover */
+    transform: scale(1.02) !important; /* Slight zoom on hover */
 }
 
-.navbar-brand img { filter: drop-shadow(0 0 8px var(--accent-glow)); }
-
-.navbar-nav .nav-link {
-    color: var(--text-muted) !important;
-    font-family: 'Space Mono', monospace;
-    font-size: 12px;
-    letter-spacing: 0.05em;
-    transition: color 0.2s, text-shadow 0.2s;
-}
-.navbar-nav .nav-link:hover {
-    color: var(--accent) !important;
-    text-shadow: 0 0 12px var(--accent-glow);
-}
-.navbar-nav .nav-item .fab {
-    color: var(--text-muted);
-    font-size: 18px;
-    transition: color 0.2s, filter 0.2s;
-}
-.navbar-nav .nav-item .fab:hover {
-    color: var(--accent);
-    filter: drop-shadow(0 0 6px var(--accent-glow));
+/* Custom scrollbar styling for dark theme */
+.highlight::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
 }
 
-/* Main content */
-.container.mt-5 {
-    position: relative;
-    z-index: 10;
-}
-
-/* Glass card */
-.card {
-    background: var(--glass-bg) !important;
-    border: 1px solid var(--glass-border) !important;
-    border-radius: 12px !important;
-    backdrop-filter: blur(16px) saturate(160%);
-    -webkit-backdrop-filter: blur(16px) saturate(160%);
-    box-shadow:
-        0 4px 24px rgba(0,0,0,0.4),
-        inset 0 1px 0 rgba(255,255,255,0.06) !important;
-    transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s;
-    position: relative;
-    overflow: hidden;
-}
-.card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(88,166,255,0.3), rgba(61,219,217,0.2), transparent);
-    pointer-events: none;
-}
-.card:hover {
-    border-color: rgba(88,166,255,0.25) !important;
-    box-shadow:
-        0 8px 40px rgba(0,0,0,0.5),
-        0 0 20px rgba(88,166,255,0.08),
-        inset 0 1px 0 rgba(255,255,255,0.10) !important;
-    transform: translateY(-2px);
-}
-
-.card-body { position: relative; z-index: 1; }
-
-.card-title {
-    color: var(--text-primary);
-    font-weight: 800;
-    font-size: 1rem;
-    letter-spacing: 0.01em;
-}
-.card-text {
-    color: var(--text-muted);
-    font-size: 0.875rem;
-    font-family: 'Space Mono', monospace;
-}
-
-/* Buttons */
-.btn {
-    border-radius: 6px;
-    font-family: 'Space Mono', monospace;
-    font-size: 12px;
-    letter-spacing: 0.05em;
-    transition: all 0.2s;
-}
-.btn-primary {
-    background: rgba(88,166,255,0.12) !important;
-    border: 1px solid rgba(88,166,255,0.35) !important;
-    color: var(--accent) !important;
-    backdrop-filter: blur(8px);
-}
-.btn-primary:hover {
-    background: rgba(88,166,255,0.22) !important;
-    border-color: rgba(88,166,255,0.6) !important;
-    box-shadow: 0 0 16px rgba(88,166,255,0.2);
-    color: #fff !important;
-}
-.btn-secondary {
-    background: var(--glass-bg) !important;
-    border: 1px solid var(--glass-border) !important;
-    color: var(--text-muted) !important;
-    backdrop-filter: blur(8px);
-}
-.btn-secondary:hover {
-    background: var(--glass-hover) !important;
-    border-color: rgba(255,255,255,0.15) !important;
-    color: var(--text-primary) !important;
-}
-.btn-secondary:disabled {
-    opacity: 0.35 !important;
-    cursor: not-allowed;
-}
-
-/* Modal */
-.modal .modal-content {
-    background: rgba(6,10,16,0.85) !important;
-    backdrop-filter: blur(32px) saturate(180%);
-    -webkit-backdrop-filter: blur(32px) saturate(180%);
-    border: 1px solid var(--glass-border) !important;
-    border-radius: 14px !important;
-    box-shadow: 0 24px 80px rgba(0,0,0,0.7), 0 0 40px rgba(88,166,255,0.06) !important;
-    color: var(--text-primary);
-    position: relative;
-    overflow: hidden;
-}
-.modal .modal-content::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(88,166,255,0.4), rgba(61,219,217,0.25), transparent);
-    pointer-events: none;
-}
-.modal .modal-header, .modal .modal-footer {
-    border: none !important;
-    border-bottom: 1px solid var(--glass-border) !important;
-}
-.modal .modal-footer { border-top: 1px solid var(--glass-border) !important; border-bottom: none !important; }
-.modal-content p { text-align: justify; color: var(--text-muted); }
-.modal-style-service { list-style-type: none; }
-.modal-title { font-weight: 800; color: var(--text-primary); }
-.close {
-    color: var(--accent) !important;
-    font-size: 1.5em;
-    text-shadow: 0 0 8px var(--accent-glow);
-    opacity: 0.8;
-    transition: opacity 0.2s;
-}
-.close:hover { opacity: 1; }
-
-/* Headings */
-h1, h2 { font-size: 1.75rem; font-weight: 800; }
-h3, h4, h5 { font-size: 1.45rem; font-weight: 600; }
-
-/* Code highlighting */
-.highlight, .snippet-clipboard-content {
-    background: rgba(33,38,45,0.7) !important;
-    border: 1px solid rgba(255,255,255,0.06) !important;
-    backdrop-filter: blur(8px);
-    color: #C9D1D9 !important;
-    border-radius: 8px !important;
-    padding: 12px !important;
-    margin: 16px 0 !important;
-    overflow: auto !important;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04) !important;
-    transition: box-shadow 0.2s;
-}
-.highlight:hover, .snippet-clipboard-content:hover {
-    box-shadow: 0 4px 30px rgba(0,0,0,0.6), 0 0 20px rgba(88,166,255,0.06), inset 0 1px 0 rgba(255,255,255,0.06) !important;
-}
-.highlight pre, .snippet-clipboard-content pre {
-    background-color: transparent !important;
-    color: inherit !important;
-    font-family: 'Space Mono', monospace !important;
-    font-size: 13px !important;
-    line-height: 1.6 !important;
-    margin: 0 !important;
-}
-
-/* Syntax tokens */
-.highlight .hljs-keyword, .snippet-clipboard-content .hljs-keyword,
-.highlight .hljs-built_in, .snippet-clipboard-content .hljs-built_in,
-.highlight .hljs-literal, .snippet-clipboard-content .hljs-literal { color: #FF7B72 !important; }
-.highlight .hljs-string, .snippet-clipboard-content .hljs-string,
-.highlight .hljs-title, .snippet-clipboard-content .hljs-title { color: var(--accent-2) !important; }
-.highlight .hljs-comment, .snippet-clipboard-content .hljs-comment {
-    color: #8B949E !important;
-    font-style: italic !important;
-}
-
-/* Custom scrollbar */
-.highlight::-webkit-scrollbar, .snippet-clipboard-content::-webkit-scrollbar,
-.modal-body::-webkit-scrollbar { width: 6px; height: 6px; }
-.highlight::-webkit-scrollbar-thumb, .snippet-clipboard-content::-webkit-scrollbar-thumb,
-.modal-body::-webkit-scrollbar-thumb {
-    background: rgba(88,166,255,0.25) !important;
+.highlight::-webkit-scrollbar-thumb {
+    background-color: #444C56 !important; /* Darker scrollbar thumb */
     border-radius: 10px !important;
 }
-.highlight::-webkit-scrollbar-track, .snippet-clipboard-content::-webkit-scrollbar-track,
-.modal-body::-webkit-scrollbar-track { background: transparent !important; }
 
-/* Links */
-a { color: var(--accent); transition: color 0.2s, text-shadow 0.2s; }
-a:hover { color: #a5c8ff; text-shadow: 0 0 10px var(--accent-glow); text-decoration: none; }
-
-/* Footer */
-footer {
-    background: rgba(6,10,16,0.7);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-top: 1px solid var(--glass-border);
-    padding: 40px 0 0;
-    color: var(--text-muted);
-    margin-top: 60px;
-    position: relative;
-    z-index: 10;
-}
-footer h3 {
-    margin-top: 10px;
-    margin-bottom: 10px;
-    font-size: 1rem;
-    font-weight: 800;
-    color: var(--text-primary);
-    letter-spacing: 0.05em;
-}
-footer ul { list-style-type: none; padding-left: 0; }
-footer ul li {
-    padding-bottom: 6px;
-    font-family: 'Space Mono', monospace;
-    font-size: 12px;
-    color: var(--text-muted);
-}
-footer ul li::before {
-    content: '// ';
-    color: rgba(88,166,255,0.4);
-}
-.footer-image {
-    height: 220px;
-    width: auto;
-    object-fit: cover;
-    border: 1px solid var(--glass-border);
-    border-radius: 8px;
-    filter: brightness(0.8) saturate(0.9);
-}
-.footer-card {
-    background: transparent;
-    border-bottom: 1px solid var(--glass-border);
-    padding-bottom: 15px;
-    margin-bottom: 15px;
-}
-.copyright-row {
-    background: rgba(0,0,0,0.3);
-    backdrop-filter: blur(8px);
-    text-align: center;
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    padding: 16px 0;
-    margin-top: 30px;
-    border-top: 1px solid var(--glass-border);
-    color: var(--text-muted);
+.highlight::-webkit-scrollbar-track {
+    background-color: #0D1117 !important;
 }
 
-/* Pagination area */
-#prevPage, #nextPage {
-    margin: 0 6px;
+/* Styling for Snippet Clipboard Content, matching dark theme */
+.snippet-clipboard-content {
+    background-color: #21262D !important; /* Dark background for snippet area */
+    color: #C9D1D9 !important; /* Light text for good contrast */
+    border-radius: 5px !important; /* Rounded corners for a soft look */
+    padding: 12px !important; /* Adequate padding for readability */
+    margin: 16px 0 !important; /* Space above and below to separate snippet area */
+    overflow: auto !important; /* Scrollable if necessary */
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7) !important; /* Soft drop shadow */
 }
 
-@media (max-width: 768px) {
-    .footer-image { height: auto; width: 100%; }
-    body::before, body::after { display: none; }
+/* Styling for code lines in the snippet */
+.snippet-clipboard-content pre {
+    background-color: transparent !important; /* No background for pre tag */
+    color: inherit !important; /* Inherits the parent element's color */
+    font-family: 'Fira Code', monospace !important; /* Monospace font for code */
+    font-size: 14px !important; /* Appropriate font size */
+    line-height: 1.6 !important; /* Good line height for readability */
+    margin: 0 !important; /* No extra space within the pre tag */
 }
+
+/* Styling for specific elements in the snippet code */
+.snippet-clipboard-content .hljs-keyword,
+.snippet-clipboard-content .hljs-built_in,
+.snippet-clipboard-content .hljs-literal,
+.snippet-clipboard-content .hljs-symbol,
+.snippet-clipboard-content .hljs-bullet,
+.snippet-clipboard-content .hljs-link {
+    color: #FF7B72 !important; /* Highlight keywords in red */
+}
+
+.snippet-clipboard-content .hljs-string,
+.snippet-clipboard-content .hljs-title,
+.snippet-clipboard-content .hljs-name,
+.snippet-clipboard-content .hljs-type,
+.snippet-clipboard-content .hljs-attr {
+    color: #A5D6FF !important; /* Highlight strings and titles in blue */
+}
+
+.snippet-clipboard-content .hljs-comment,
+.snippet-clipboard-content .hljs-quote {
+    color: #8B949E !important; /* Muted color for comments */
+    font-style: italic !important; /* Italicize comments */
+}
+
+/* Fancy hover effects for snippet */
+.snippet-clipboard-content:hover {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2) !important; /* Shadow effect on hover */
+    transform: scale(1.02) !important; /* Slight zoom on hover */
+}
+
+/* Custom scrollbar styling for dark theme in snippet */
+.snippet-clipboard-content::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.snippet-clipboard-content::-webkit-scrollbar-thumb {
+    background-color: #444C56 !important; /* Darker scrollbar thumb */
+    border-radius: 10px !important;
+}
+
+.snippet-clipboard-content::-webkit-scrollbar-track {
+    background-color: #0D1117 !important;
+}
+
+/* Responsive styling for images in the footer */
+        @media (max-width: 768px) {
+            .footer-image {
+                height: auto;
+                width: 100%;
+                margin: 20px 0;
+            }
+        }               
 </style>
 </head>
 <body>
-<!-- Navbar -->
+<!-- Start of navigation bar -->
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container">
-        <a class="navbar-brand" href="https://github.com/volkansah">
-            <img src="{{ '/assets/img/logo.webp' | relative_url }}" alt="AI Code Craft Website Logo" class="logo">
+        <!-- Website logo -->
+        <a class="navbar-brand" href="https://github.com/volkansah"><img src="{{ '/assets/img/logo.webp' | relative_url }}" alt="AI Code Craft Website Logo">
         </a>
+        <!-- Button for toggling the navigation menu on small screens -->
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
+        <!-- Navigation links -->
         <div class="collapse navbar-collapse nav-social-links" id="navbarNav">
             <div class="d-flex">
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item active">
-                        <a class="nav-link" href="index.html">Overview</a>
+                        <a class="nav-link" href="index.html"><span class="nav-link-type">Overview</span></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" target="_blank" href="https://volkansah.github.io/">German</a>
+                        <a class="nav-link" target="_blank" href="https://volkansah.github.io/"><span class="nav-link-type">German</span></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" target="_blank" href="https://jugendamt-deutschland.de/treffen-sie-jade/">JadeGPT</a>
+                        <a class="nav-link" target="_blank" href="https://jugendamt-deutschland.de/treffen-sie-jade/"><span class="nav-link-type">JadeGPT</span></a>
                     </li>
                 </ul>
                 <ul class="navbar-nav ml-auto">
+                    <!-- Social media links with icons -->
                     <li class="nav-item">
                         <a href="https://volkansah.github.io" target="_blank" rel="noopener noreferrer nofollow" class="nav-link"><i class="fab fa-github"></i></a>
                     </li>
                     <li class="nav-item">
                         <a href="https://facebook.com/volkansah" target="_blank" rel="noopener noreferrer nofollow" class="nav-link"><i class="fab fa-facebook-f"></i></a>
                     </li>
+
                     <li class="nav-item">
                         <a href="https://www.instagram.com/childrenexchange/" target="_blank" rel="noopener noreferrer nofollow" class="nav-link"><i class="fab fa-instagram"></i></a>
                     </li>
                 </ul>
+
             </div>
         </div>
     </div>
 </nav>
 
-<!-- Content -->
+<!-- Main content area -->
 <div class="container mt-5">
     {{ content }}
 </div>
 
-<!-- Footer -->
+<!-- Footer section -->
 <footer>
     <div class="container">
         <div class="row">
             <div class="col-md-3">
-                <img src="{{ '/assets/img/logo-footer.webp' | relative_url }}" alt="Website Footer Logo">
+            <!-- Footer logo -->
+            <img src="{{ '/assets/img/logo-footer.webp' | relative_url }}" alt="Website Footer Logo">
             </div>
             <div class="col-md-3">
                 <h3>Main Services</h3>
@@ -428,53 +377,141 @@ footer ul li::before {
                 </ul>
             </div>
             <div class="col-md-3">
-                <img src="{{ '/assets/img/love-you-my-son.webp' | relative_url }}" alt="Love You My Son" class="footer-image">
+              <!-- Image in footer -->
+              <img src="{{ '/assets/img/love-you-my-son.webp' | relative_url }}" alt="Love You My Son">
             </div>
         </div>
-        <!-- Copyright section dont remove, please! -->
-        <div class="row copyright-row">
-            <div class="col-md-12">
-                <p style="margin:0;">&copy; Volkan Kücükbudak | <a href="https://github.com/VolkanSah/Obsidian-Nightfall/">Obsidian Nightfall Theme</a>. All Rights Reserved.</p>
+        <!-- Copyright section dont remove, please!-->
+        <div class="row mt-4">
+            <div class="col-md-12 text-center">
+                <p>&copy; © Volkan Kücükbudak | <a href="https://github.com/VolkanSah/Obsidian-Nightfall/">Obsidian Nightfall Theme</a>. All Rights Reserved. Theme by: </p>
             </div>
         </div>
     </div>
 </footer>
 
-<!-- JS -->
+<!-- JavaScript for Bootstrap and other libraries -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
 
 <script>
+/* Function to load README file from GitHub repository */
 function loadReadme(repoFullName, index) {
   fetch(`https://api.github.com/repos/${repoFullName}/readme`, {
     headers: { 'Accept': 'application/vnd.github.v3.html' }
   })
   .then(response => response.text())
   .then(data => {
+    // Fix image src — use raw.githubusercontent so images actually load
     const repoUrl = `https://raw.githubusercontent.com/${repoFullName}/master/`;
     data = data.replace(/src="([^"]+)"/g, (match, p1) => {
-      if (!p1.startsWith('http') && !p1.startsWith('//')) return `src="${repoUrl}${p1}"`;
+      if (!p1.startsWith('http') && !p1.startsWith('//')) {
+        return `src="${repoUrl}${p1}"`;
+      }
       return match;
     });
-    data = data.replace(/href="#([^"]+)"/g, (match, p1) => `href="#repoContent-${index}-${p1}"`);
-    data = data.replace(/id="([^"]+)"/g, (match, p1) => `id="repoContent-${index}-${p1}"`);
-    document.getElementById(`repoContent-${index}`).innerHTML = data;
+
+    // Fix anchor links so ToC works inside the modal
+    // Anchor hrefs point to namespaced IDs, clicks scroll inside modal-body
+    data = data.replace(/href="#([^"]+)"/g, (match, p1) => {
+      return `href="#repoContent-${index}-${p1}" onclick="scrollModalTo('repoContent-${index}','repoContent-${index}-${p1}');return false;"`;
+    });
+
+    // Namespace all IDs to avoid collisions between modals
+    data = data.replace(/\bid="([^"]+)"/g, (match, p1) => {
+      return `id="repoContent-${index}-${p1}"`;
+    });
+
+    // Strip link wrappers around images so clicks don't navigate away
+    // GitHub wraps <a href="..."><img ...></a> — we keep the img, drop the anchor
+    data = data.replace(/<a[^>]*>\s*(<img[^>]*>)\s*<\/a>/gi, '$1');
+
+    const container = document.getElementById(`repoContent-${index}`);
+    container.innerHTML = data;
+
+    // MathJax re-render if available
+    if (window.MathJax && MathJax.typesetPromise) {
+      MathJax.typesetPromise([container]).catch(e => console.error('MathJax:', e));
+    } else if (window.renderMathInElement) {
+      renderMathInElement(container, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\(", right: "\\)", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ]
+      });
+    }
   })
-  .catch(() => {
+  .catch(error => {
     document.getElementById(`repoContent-${index}`).innerHTML = '<p>README could not be loaded.</p>';
   });
 }
+
+// Scroll to anchor inside modal-body without jumping the whole page
+function scrollModalTo(modalBodyId, targetId) {
+  const modalBody = document.getElementById(modalBodyId);
+  const target = document.getElementById(targetId);
+  if (!modalBody || !target) return;
+  const offset = target.offsetTop - modalBody.offsetTop;
+  modalBody.scrollTo({ top: offset - 16, behavior: 'smooth' });
+}
+
+// Typewriter effect for nav links
+// Adjust SPEED here (ms per character) ↓
+const TYPEWRITER_SPEED = 55;
+
+document.addEventListener('DOMContentLoaded', function () {
+  const spans = document.querySelectorAll('.nav-link-type');
+  let globalDelay = 120; // initial delay before first link starts typing
+
+  spans.forEach(function (span) {
+    const text = span.textContent.trim();
+    span.textContent = '';
+    span.style.width = '0';
+
+    // Measure natural width without affecting layout
+    const ghost = document.createElement('span');
+    ghost.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font:inherit;';
+    ghost.textContent = text;
+    document.body.appendChild(ghost);
+    const fullWidth = ghost.offsetWidth;
+    document.body.removeChild(ghost);
+
+    let charIndex = 0;
+    const startDelay = globalDelay;
+
+    setTimeout(function type() {
+      if (charIndex < text.length) {
+        span.textContent += text[charIndex];
+        // Animate width so the reveal looks natural
+        span.style.width = ((charIndex + 1) / text.length * fullWidth) + 'px';
+        charIndex++;
+        setTimeout(type, TYPEWRITER_SPEED);
+      } else {
+        span.style.width = fullWidth + 'px';
+        span.classList.add('typing-done');
+      }
+    }, startDelay);
+
+    // Next link starts after this one finishes + small gap
+    globalDelay += text.length * TYPEWRITER_SPEED + 180;
+  });
+});
 </script>
 
+    <!-- MathJax konfigurieren -->
 <script>
 window.MathJax = {
   tex: {
     inlineMath: [['\\(','\\)'], ['$', '$']],
     displayMath: [['$$','$$']]
   },
-  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+  options: {
+    skipHtmlTags: ['script','noscript','style','textarea','pre','code']
+  }
 };
 </script>
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
