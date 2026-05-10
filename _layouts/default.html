@@ -122,41 +122,54 @@
         /* Footer styling */
         footer {
             background-color: #161B22;
-            padding: 20px 0;
-            color: #C9D1D9;
-            margin-top: 20px;
+            border-top: 1px solid #21262D;
+            padding: 24px 0;
+            color: #8B949E;
+            margin-top: 40px;
+            font-size: 13px;
         }
-        .footer-image {
-            height: 250px;
-            width: auto;
-            object-fit: cover;
-            margin: -50px 0;
-            border: 1px solid #C9D1D9;
+        .footer-inner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
         }
-        .footer-card {
-            background-color: transparent;
-            border-bottom: 1px solid #05172c;
-            padding-bottom: 15px;
-            margin-bottom: 15px;
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 6px 4px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
         }
-        footer h3 {
-            margin-top: 10px;
-            margin-bottom: 5px;
-            font-size: 1.2rem;
+        .footer-links li a {
+            color: #8B949E;
+            padding: 4px 8px;
+            border-radius: 2px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.15s;
         }
-        footer ul {
-            list-style-type: none;
-            padding-left: 0;
+        .footer-links li a:hover {
+            color: #58A6FF;
+            text-decoration: none;
         }
-        footer ul li {
-            padding-bottom: 5px;
+        .footer-links li a i {
+            font-size: 15px;
         }
-        /* Copyright section styling */
-        .copyright-row {
-            background-color: #0D1117;
-            text-align: center;
+        .footer-copy {
+            color: #6E7681;
             font-size: 12px;
-            padding-top: 20px;
+            text-align: center;
+        }
+        .footer-copy a {
+            color: #6E7681;
+        }
+        .footer-copy a:hover {
+            color: #58A6FF;
         }
 
 /* Code highlighting styling for a dark theme */
@@ -385,39 +398,29 @@
 <!-- Footer section -->
 <footer>
     <div class="container">
-        <div class="row">
-            <div class="col-md-3">
-            <!-- Footer logo -->
-            <img src="{{ '/assets/img/logo-footer.webp' | relative_url }}" alt="Website Footer Logo">
-            </div>
-            <div class="col-md-3">
-                <h3>Main Services</h3>
-                <ul>
-                    <li>Webserver development</li>
-                    <li>Application development</li>
-                    <li>Design development</li>
-                    <li>Artificial intelligence</li>
-                </ul>
-            </div>
-            <div class="col-md-3">
-                <h3>Optional Services</h3>
-                <ul>
-                    <li>Pentesting Application</li>
-                    <li>Searchengine Optimisation</li>
-                    <li>Social Marketing (SEM)</li>
-                    <li>Offensive Security (NCF)</li>
-                </ul>
-            </div>
-            <div class="col-md-3">
-              <!-- Image in footer -->
-              <img src="{{ '/assets/img/love-you-my-son.webp' | relative_url }}" alt="Love You My Son">
-            </div>
-        </div>
-        <!-- Copyright section dont remove, please!-->
-        <div class="row mt-4">
-            <div class="col-md-12 text-center">
-                <p>&copy; © Volkan Kücükbudak | <a href="https://github.com/VolkanSah/Obsidian-Nightfall/">Obsidian Nightfall Theme</a>. All Rights Reserved. Theme by: </p>
-            </div>
+        <div class="footer-inner">
+            <ul class="footer-links">
+                <li><a href="https://github.com/volkansah" target="_blank" rel="noopener noreferrer nofollow">
+                    <i class="fab fa-github"></i> GitHub
+                </a></li>
+                <li><a href="https://gitlab.com/YOUR-GITLAB-USERNAME" target="_blank" rel="noopener noreferrer nofollow">
+                    <i class="fab fa-gitlab"></i> GitLab
+                </a></li>
+                <li><a href="https://huggingface.co/YOUR-HF-USERNAME" target="_blank" rel="noopener noreferrer nofollow">
+                    🤗 Hugging Face
+                </a></li>
+                <li><a href="https://YOUR-NAME.blogspot.com" target="_blank" rel="noopener noreferrer nofollow">
+                    <i class="fab fa-blogger-b"></i> Blogspot
+                </a></li>
+                <li><a href="https://soloist.ai/YOUR-USERNAME" target="_blank" rel="noopener noreferrer nofollow">
+                    🎵 Soloist.ai
+                </a></li>
+            </ul>
+            <!-- Copyright section dont remove, please! -->
+            <p class="footer-copy">
+                &copy; Volkan Kücükbudak &nbsp;·&nbsp;
+                <a href="https://github.com/VolkanSah/Obsidian-Nightfall/">Obsidian Nightfall Theme</a>
+            </p>
         </div>
     </div>
 </footer>
@@ -429,7 +432,7 @@
 <script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
 
 <script>
-/* Load README and build a fresh ToC from the actual DOM headings */
+/* Load README — preserve user's ToC, patch its links to our heading IDs */
 function loadReadme(repoFullName, index) {
   fetch(`https://api.github.com/repos/${repoFullName}/readme`, {
     headers: { 'Accept': 'application/vnd.github.v3.html' }
@@ -443,65 +446,74 @@ function loadReadme(repoFullName, index) {
       return match;
     });
 
-    // Strip ALL existing anchor wrappers inside headings — GitHub adds
-    // <h2><a id="user-content-xyz" href="#xyz" ...></a> Heading text</h2>
-    // We don't want those — IDs go on the <hN> itself (see DOM step below)
-    data = data.replace(/<(h[1-5])[^>]*>(\s*<a[^>]*><\/a>\s*)?([\s\S]*?)<\/\1>/gi, (match, tag, anchor, inner) => {
-      // Strip any remaining <a> tags inside the heading text but keep the text
-      const cleanInner = inner.replace(/<a[^>]*>([\s\S]*?)<\/a>/gi, '$1').trim();
-      return `<${tag}>${cleanInner}</${tag}>`;
-    });
-
+    // Strip GitHub's anchor wrappers INSIDE headings only
+    // <h2><a id="user-content-xyz" href="#xyz"></a> Text</h2> → <h2>Text</h2>
+    // But we need to remember the original GitHub slug → for ToC link patching below
+    // So we do this in the DOM pass instead of on the string
+    
     // Strip link wrappers around images — keep <img>, drop <a>
     data = data.replace(/<a[^>]*>\s*(<img[^>]*\/?>)\s*<\/a>/gi, '$1');
-
-    // Remove all original ToC lists that GitHub may have rendered
-    // (any <ul>/<ol> that only contains anchor links pointing to #headings)
-    // We'll replace with our own ToC after DOM injection
 
     const container = document.getElementById(`repoContent-${index}`);
     container.innerHTML = data;
 
-    // --- DOM pass: assign clean IDs to headings and build ToC ---
+    // --- DOM pass ---
+    // Build a map: GitHub slug → our new heading ID
+    const slugMap = {};
     const headings = container.querySelectorAll('h1,h2,h3,h4,h5');
-    const tocItems = [];
 
     headings.forEach((h, i) => {
-      // Slug from text content: lowercase, spaces→hyphens, strip non-alphanum
+      // Grab GitHub's original slug from the inner <a id="user-content-...">
+      const innerAnchor = h.querySelector('a[id]');
+      if (innerAnchor) {
+        const githubSlug = innerAnchor.id.replace(/^user-content-/, '');
+        // Remove the anchor wrapper, keep heading text clean
+        innerAnchor.replaceWith(...innerAnchor.childNodes);
+        slugMap[githubSlug] = null; // fill in after we assign the new ID
+      }
+
+      // Assign our own clean ID to the heading element
       const slug = h.textContent.trim()
         .toLowerCase()
         .replace(/[^\w\s-]/g, '')
         .replace(/\s+/g, '-')
         .replace(/-+/g, '-');
-      const id = `repoContent-${index}-${i + 1}-${slug}`;
-      h.id = id;
+      const newId = `repoContent-${index}-${i + 1}-${slug}`;
+      h.id = newId;
 
-      tocItems.push({ id, text: h.textContent.trim(), level: parseInt(h.tagName[1]) });
+      // Map GitHub slug → new ID (re-derive the same slug GitHub would use)
+      const githubDerivedSlug = h.textContent.trim()
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
+      slugMap[githubDerivedSlug] = newId;
+
+      // Also map numeric variants GitHub sometimes uses (slug-1, slug-2)
+      // covered by the anchor extraction above if present
     });
 
-    // Only build ToC if there are at least 3 headings
-    if (tocItems.length >= 3) {
-      const tocEl = document.createElement('div');
-      tocEl.className = 'readme-toc';
-      tocEl.innerHTML = '<strong>Table of Contents</strong>';
-      const ol = document.createElement('ol');
-      tocItems.forEach(item => {
-        const li = document.createElement('li');
-        li.style.marginLeft = ((item.level - 1) * 12) + 'px';
-        const a = document.createElement('a');
-        a.href = '#' + item.id;
-        a.textContent = item.text;
+    // Fill slugMap entries we captured from the inner anchors
+    headings.forEach((h, i) => {
+      const slug = h.id.replace(new RegExp(`^repoContent-${index}-${i+1}-`), '');
+      // Already set above — just ensure nothing is null
+    });
+
+    // Patch ALL internal anchor links in the container (ToC links, cross-refs)
+    container.querySelectorAll('a[href^="#"]').forEach(a => {
+      const raw = a.getAttribute('href').replace(/^#/, '').replace(/^user-content-/, '');
+      const newId = slugMap[raw];
+      if (newId) {
+        a.setAttribute('href', '#' + newId);
         a.addEventListener('click', function(e) {
           e.preventDefault();
-          scrollModalTo(`repoContent-${index}`, item.id);
+          scrollModalTo(`repoContent-${index}`, newId);
         });
-        li.appendChild(a);
-        ol.appendChild(li);
-      });
-      tocEl.appendChild(ol);
-      // Insert ToC before first element in container
-      container.insertBefore(tocEl, container.firstChild);
-    }
+      } else {
+        // Unknown anchor — just prevent page jump
+        a.addEventListener('click', function(e) { e.preventDefault(); });
+      }
+    });
 
     // MathJax re-render
     if (window.MathJax && MathJax.typesetPromise) {
