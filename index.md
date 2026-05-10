@@ -3,218 +3,304 @@ layout: default
 title: My GitHub Repositories
 ---
 
+<style>
+/* Repo card shimmer on load */
+@keyframes card-in {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.repo-card-wrap { animation: card-in 0.4s ease both; }
+
+/* Stagger via JS-injected --i */
+.repo-card-wrap { animation-delay: calc(var(--i, 0) * 0.05s); }
+
+/* Card label tag */
+.repo-tag {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(88,166,255,0.10);
+    border: 1px solid rgba(88,166,255,0.25);
+    color: #58A6FF;
+    margin-bottom: 8px;
+    letter-spacing: 0.06em;
+}
+
+/* Stars badge */
+.star-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: #8B949E;
+    float: right;
+}
+.star-badge i { color: rgba(239,186,0,0.7); margin-right: 3px; }
+
+/* View Details button glow pulse */
+.btn-view {
+    position: relative;
+    overflow: hidden;
+}
+.btn-view::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 6px;
+    background: radial-gradient(ellipse at 50% 120%, rgba(88,166,255,0.15), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+.btn-view:hover::after { opacity: 1; }
+
+/* Modal body scrollbar thin */
+.modal-body { max-height: 65vh; overflow-y: auto; }
+
+/* README images in modal */
+.modal-body img {
+    max-width: 100%;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* README headings */
+.modal-body h1, .modal-body h2, .modal-body h3,
+.modal-body h4, .modal-body h5 {
+    color: #E6EDF3;
+    font-family: 'Syne', sans-serif;
+}
+
+/* README code blocks */
+.modal-body code {
+    background: rgba(33,38,45,0.8);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: #3DDBD9;
+}
+.modal-body pre code {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+.modal-body pre {
+    background: rgba(33,38,45,0.75);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 8px;
+    padding: 14px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* Table in README */
+.modal-body table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    font-family: 'Space Mono', monospace;
+}
+.modal-body table th, .modal-body table td {
+    padding: 8px 12px;
+    border: 1px solid rgba(255,255,255,0.08);
+}
+.modal-body table th { background: rgba(88,166,255,0.08); color: #58A6FF; }
+
+/* Pagination */
+.pagination-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 40px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: #8B949E;
+}
+#pageIndicator {
+    padding: 4px 14px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Loading shimmer */
+.repo-skeleton {
+    background: linear-gradient(90deg,
+        rgba(255,255,255,0.03) 25%,
+        rgba(255,255,255,0.07) 50%,
+        rgba(255,255,255,0.03) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 12px;
+    min-height: 140px;
+}
+@keyframes shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+</style>
+
 <div class="container">
-    <div class="row" id="repo-list" data-masonry='{"percentPosition": true }'></div>
-    
-    <div class="row mt-3">
-        <div class="col-12 text-center">
-            <button id="prevPage" class="btn btn-secondary" onclick="loadPrevPage()" disabled>Previous</button>
-            <button id="nextPage" class="btn btn-secondary" onclick="loadNextPage()" disabled>Next</button>
-        </div>
+    <div class="row" id="repo-list" data-masonry='{"percentPosition": true}'></div>
+    <div class="pagination-wrap">
+        <button id="prevPage" class="btn btn-secondary" onclick="loadPrevPage()">← prev</button>
+        <span id="pageIndicator">page 1</span>
+        <button id="nextPage" class="btn btn-secondary" onclick="loadNextPage()">next →</button>
     </div>
 </div>
 
 <script>
-// --- Configuration and State ---
 let currentPage = 1;
-const perPage = 18; // Number of repositories to display per page (GitHub API limit is 100)
-const githubUsername = 'volkansah'; // **IMPORTANT: Change this to your GitHub username**
+const perPage = 18;
 
-
-// --- Main Data Fetching Function ---
-
-/**
- * Fetches and displays GitHub repositories for the configured user and page.
- * @param {number} page - The page number to fetch.
- */
 function fetchAllRepos(page = 1) {
-    fetch(`https://api.github.com/users/${githubUsername}/repos?type=owner&sort=updated&per_page=${perPage}&page=${page}`)
+    const repoList = document.getElementById('repo-list');
+
+    // Show skeletons while loading
+    repoList.innerHTML = Array.from({length: 6}, () =>
+        `<div class="col-md-4 mb-4"><div class="repo-skeleton"></div></div>`
+    ).join('');
+
+    fetch(`https://api.github.com/users/volkansah/repos?type=owner&sort=updated&per_page=${perPage}&page=${page}`)
         .then(response => {
-            // Read the 'Link' header to determine if there are next/previous pages
-            const linkHeader = response.headers.get('Link');
-            updatePaginationButtons(linkHeader);
+            updatePaginationButtons(response.headers.get('Link'));
             return response.json();
         })
         .then(data => {
-            let repoList = document.getElementById('repo-list');
-            // Clear the existing content before adding new page content
             repoList.innerHTML = '';
+            document.getElementById('pageIndicator').textContent = `page ${page}`;
 
-            // Filter out specific repositories (e.g., fork, personal site, etc.)
-            let filteredData = data.filter(repo => {
-                // Ensure it's not a fork and exclude the two specified repos
-                return !repo.fork && 
-                       repo.name !== 'volkansah.github.io' && 
-                       repo.name !== 'VolkanSah';
-            });
+            const filtered = data.filter(repo =>
+                !repo.fork &&
+                repo.name !== 'volkansah.github.io' &&
+                repo.name !== 'VolkanSah'
+            );
 
-            // Iterate over filtered data and create a card/modal for each repository
-            filteredData.forEach((repo, index) => {
-                // We calculate a global index by combining current page and local index
-                const globalIndex = (page - 1) * perPage + index; 
-                let listItem = document.createElement('div');
-                listItem.className = 'col-md-4'; // Bootstrap grid class for 3-column layout
-                
-                // HTML for the repository card and its corresponding modal
-                listItem.innerHTML = `
+            filtered.forEach((repo, index) => {
+                const wrap = document.createElement('div');
+                wrap.className = 'col-md-4 repo-card-wrap';
+                wrap.style.setProperty('--i', index);
+
+                const stars = repo.stargazers_count
+                    ? `<span class="star-badge"><i class="fas fa-star"></i>${repo.stargazers_count}</span>`
+                    : '';
+                const lang = repo.language
+                    ? `<span class="repo-tag">${repo.language}</span>`
+                    : '';
+
+                wrap.innerHTML = `
                     <div class="card mb-4">
                         <div class="card-body">
+                            ${stars}
+                            ${lang}
                             <h5 class="card-title">${repo.name}</h5>
-                            <p class="card-text">${repo.description || 'No description available'}</p>
-                            <button class="btn btn-primary" data-toggle="modal" data-target="#repoModal-${globalIndex}" onclick="loadReadme('${repo.full_name}', ${globalIndex})">View Details</button>
+                            <p class="card-text">${repo.description || '// no description'}</p>
+                            <button class="btn btn-primary btn-view"
+                                data-toggle="modal"
+                                data-target="#repoModal-${index}"
+                                onclick="loadReadme('${repo.full_name}', ${index})">
+                                View Details
+                            </button>
                         </div>
                     </div>
-                    <div class="modal fade" id="repoModal-${globalIndex}" tabindex="-1" role="dialog" aria-labelledby="repoModalLabel-${globalIndex}" aria-hidden="true">
+
+                    <div class="modal fade" id="repoModal-${index}" tabindex="-1" role="dialog" aria-labelledby="repoModalLabel-${index}" aria-hidden="true">
                         <div class="modal-dialog modal-lg" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h3 class="modal-title" id="repoModalLabel-${globalIndex}">Name: ${repo.name}</h3>
+                                    <h3 class="modal-title" id="repoModalLabel-${index}">${repo.name}</h3>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
-                                <div class="modal-body" id="repoContent-${globalIndex}">
-                                    <p>Loading README...</p>
+                                <div class="modal-body" id="repoContent-${index}">
+                                    <p style="color:#8B949E;font-family:'Space Mono',monospace;font-size:12px;">// loading readme...</p>
                                 </div>
                                 <div class="modal-footer">
-                                    <a href="${repo.html_url}" target="_blank" class="btn btn-primary">Go to Repository</a>
+                                    <a href="${repo.html_url}" target="_blank" class="btn btn-primary">
+                                        <i class="fab fa-github" style="margin-right:6px;"></i>Go to Repository
+                                    </a>
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 `;
-                repoList.appendChild(listItem);
+                repoList.appendChild(wrap);
             });
 
-            // **SCROLL FIX IMPLEMENTATION:**
-            // Scroll the window up to the start of the repository list 
-            // after the new content has been loaded, solving the UX issue.
-            const repoListElement = document.getElementById('repo-list');
-            if (repoListElement) {
-                // Use smooth behavior for a better user experience
-                repoListElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-
-
-            // Reinitialize Masonry after all new items are added and images are loaded
-            imagesLoaded(repoList, function() {
+            imagesLoaded(repoList, () => {
                 new Masonry(repoList, {
                     itemSelector: '.col-md-4',
                     percentPosition: true
                 });
             });
         })
-        .catch(error => {
-            console.error('Error fetching repositories:', error);
-            let repoList = document.getElementById('repo-list');
-            repoList.innerHTML = '<div class="col-12"><p class="text-danger">Error loading repositories. Check console for details.</p></div>';
+        .catch(() => {
+            repoList.innerHTML = '<p style="color:#8B949E;font-family:\'Space Mono\',monospace;padding:2rem;">// error loading repositories.</p>';
         });
 }
 
-
-// --- Pagination Helper Functions ---
-
-/**
- * Updates the 'Previous' and 'Next' button states based on the GitHub API 'Link' header.
- * @param {string} linkHeader - The value of the 'Link' HTTP header.
- */
 function updatePaginationButtons(linkHeader) {
     const links = parseLinkHeader(linkHeader);
-    const prevButton = document.getElementById('prevPage');
-    const nextButton = document.getElementById('nextPage');
-
-    // Disable button if 'prev' or 'next' link is not present
-    prevButton.disabled = !links.prev;
-    nextButton.disabled = !links.next;
+    document.getElementById('prevPage').disabled = !links.prev;
+    document.getElementById('nextPage').disabled = !links.next;
 }
 
-/**
- * Parses the GitHub API 'Link' header string into an object.
- * @param {string} header - The Link header string.
- * @returns {Object} An object containing 'next', 'prev', 'first', 'last' URLs if present.
- */
 function parseLinkHeader(header) {
     if (!header) return {};
-    const parts = header.split(',');
-    const links = {};
-    parts.forEach(p => {
-        const section = p.split(';');
-        if (section.length != 2) return;
-        const url = section[0].replace(/<(.*)>/, '$1').trim();
-        const name = section[1].replace(/rel="(.*)"/, '$1').trim();
-        links[name] = url;
-    });
-    return links;
+    return Object.fromEntries(
+        header.split(',').map(p => {
+            const [url, rel] = p.split(';');
+            return [rel.replace(/rel="(.*)"/, '$1').trim(), url.replace(/<(.*)>/, '$1').trim()];
+        })
+    );
 }
 
-/**
- * Decrements the page number and loads the previous page.
- */
 function loadPrevPage() {
-    if (currentPage > 1) {
-        currentPage--;
-        fetchAllRepos(currentPage);
-    }
+    if (currentPage > 1) { currentPage--; fetchAllRepos(currentPage); }
 }
-
-/**
- * Increments the page number and loads the next page.
- */
 function loadNextPage() {
-    // Note: The GitHub API will return an empty array if the page is beyond the last page.
     currentPage++;
     fetchAllRepos(currentPage);
 }
 
-
-// --- README Content Loader (Required for Modal) ---
-
-/**
- * Fetches the README.md content as HTML from a repository and injects it into a specific modal body.
- * @param {string} repoFullName - The full name of the repository (e.g., 'volkansah/repo-name').
- * @param {number} index - The unique index of the modal element.
- */
 function loadReadme(repoFullName, index) {
     fetch(`https://api.github.com/repos/${repoFullName}/readme`, {
-        // Request the README as HTML to include styling and markdown rendering
         headers: { 'Accept': 'application/vnd.github.v3.html' }
     })
-        .then(response => response.text())
-        .then(data => {
-            
-            // 1. Ensure relative image URLs work by pointing them to raw GitHub content
-            // Note: This is a simplified approach; handling all asset types is complex.
-            const repoUrl = `https://raw.githubusercontent.com/${repoFullName}/master/`;
-            data = data.replace(/src="([^"]+)"/g, (match, p1) => {
-                if (!p1.startsWith('http') && !p1.startsWith('//')) {
-                    return `src="${repoUrl}${p1}"`;
-                }
-                return match;
-            });
-
-            // 2. Make internal anchor links (like #heading) and IDs unique to this modal
-            // This prevents clicking a link in one modal from scrolling the main page 
-            // or interfering with elements in other modals.
-            const uniqueIdPrefix = `repoContent-${index}-`;
-            
-            // Replace anchor hrefs
-            data = data.replace(/href="#([^"]+)"/g, `href="#${uniqueIdPrefix}$1"`);
-
-            // Replace element IDs (including heading IDs generated by GitHub's markdown rendering)
-            data = data.replace(/id="([^"]+)"/g, `id="${uniqueIdPrefix}$1"`);
-
-            // Inject the processed HTML content into the modal body
-            document.getElementById(`repoContent-${index}`).innerHTML = data;
-        })
-        .catch(error => {
-            console.error('Error loading README:', error);
-            document.getElementById(`repoContent-${index}`).innerHTML = '<p>README could not be loaded. Please check the repository settings or API limits.</p>';
+    .then(r => r.text())
+    .then(data => {
+        const repoUrl = `https://github.com/${repoFullName}/blob/master/`;
+        data = data.replace(/href="#([^"]+)"/g, `href="#repoContent-${index}-$1"`);
+        data = data.replace(/id="([^"]+)"/g, `id="repoContent-${index}-$1"`);
+        data = data.replace(/<h([1-6])([^>]*)id="([^"]+)"([^>]*)>/g, `<h$1$2id="repoContent-${index}-$3"$4>`);
+        data = data.replace(/src="([^"]+)"/g, (match, p1) => {
+            if (!p1.startsWith('http') && !p1.startsWith('//')) return `src="${repoUrl}${p1}"`;
+            return match;
         });
+        const el = document.getElementById(`repoContent-${index}`);
+        el.innerHTML = data;
+        if (window.MathJax && MathJax.typesetPromise) {
+            MathJax.typesetPromise([el]).catch(e => console.error('MathJax:', e));
+        } else if (window.renderMathInElement) {
+            renderMathInElement(el, {
+                delimiters: [
+                    {left:"$$",right:"$$",display:true},
+                    {left:"$",right:"$",display:false},
+                    {left:"\\(",right:"\\)",display:false},
+                    {left:"\\[",right:"\\]",display:true}
+                ]
+            });
+        }
+    })
+    .catch(() => {
+        document.getElementById(`repoContent-${index}`).innerHTML = '<p>// README could not be loaded.</p>';
+    });
 }
 
-
-// --- Initialisation ---
-// Start loading the first page of repositories when the page loads
 fetchAllRepos();
 </script>
