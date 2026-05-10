@@ -7,8 +7,8 @@ title: My GitHub Repositories
     <div class="row" id="repo-list" data-masonry='{"percentPosition": true }'></div>
     <div class="row mt-3">
         <div class="col-12 text-center">
-            <button id="prevPage" class="btn btn-secondary" onclick="loadPrevPage()">Previous</button>
-            <button id="nextPage" class="btn btn-secondary" onclick="loadNextPage()">Next</button>
+            <button id="prevPage" class="btn btn-secondary" onclick="loadPrevPage();return false;">Previous</button>
+            <button id="nextPage" class="btn btn-secondary" onclick="loadNextPage();return false;">Next</button>
         </div>
     </div>
 </div>
@@ -19,6 +19,9 @@ const perPage = 18; // Number of repositories per page
 
 // Function to fetch and display GitHub repositories
 function fetchAllRepos(page = 1) {
+    // Clean up modals from previous page so IDs don't collide
+    document.querySelectorAll('.repo-modal-dynamic').forEach(el => el.remove());
+
     // Replace 'volkansah' with your own GitHub username
     fetch(`https://api.github.com/users/volkansah/repos?type=owner&sort=updated&per_page=${perPage}&page=${page}`)
         .then(response => {
@@ -37,11 +40,8 @@ function fetchAllRepos(page = 1) {
                        repo.name !== 'VolkanSah';
             });
 
-            // Remove old modals from previous page load to avoid ID collisions
-            document.querySelectorAll('.repo-modal-dynamic').forEach(el => el.remove());
-
             filteredData.forEach((repo, index) => {
-                // Card — goes into the grid
+                // Card ins Grid
                 let listItem = document.createElement('div');
                 listItem.className = 'col-md-4';
                 listItem.innerHTML = `
@@ -55,7 +55,7 @@ function fetchAllRepos(page = 1) {
                 `;
                 repoList.appendChild(listItem);
 
-                // Modal — appended directly to body so Bootstrap can find it
+                // Modal direkt ans body — Bootstrap 4 braucht das, sonst öffnet nix
                 let modal = document.createElement('div');
                 modal.className = 'modal fade repo-modal-dynamic';
                 modal.id = `repoModal-${index}`;
@@ -72,7 +72,7 @@ function fetchAllRepos(page = 1) {
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
-                            <div class="modal-body" id="repoContent-${index}">
+                            <div class="modal-body" id="repoContent-${index}" style="max-height:70vh;overflow-y:auto;">
                                 <p>Loading README...</p>
                             </div>
                             <div class="modal-footer">
@@ -140,38 +140,8 @@ function loadNextPage() {
 }
 
 // Function to load the README.md file of a repository
-function loadReadme(repoFullName, index) {
-    fetch(`https://api.github.com/repos/${repoFullName}/readme`, {
-        headers: { 'Accept': 'application/vnd.github.v3.html' }
-    })
-        .then(response => response.text())
-        .then(data => {
-            // Preserve relative anchor links by avoiding unnecessary modifications
-            data = data.replace(/href="#([^"]+)"/g, `href="#repoContent-${index}-$1"`);
-
-            // Ensure that the target elements have the corresponding IDs
-            data = data.replace(/id="([^"]+)"/g, `id="repoContent-${index}-$1"`);
-
-           // Update heading elements to have the correct IDs
-            data = data.replace(/<h([1-6])([^>]*)id="([^"]+)"([^>]*)>/g, `<h$1$2id="repoContent-${index}-$3"$4>`);
-
-          
-
-            // Preserve relative image URLs by only updating non-absolute paths
-            const repoUrl = `https://github.com/${repoFullName}/blob/master/`;
-            data = data.replace(/src="([^"]+)"/g, (match, p1) => {
-                if (!p1.startsWith('http') && !p1.startsWith('//')) {
-                    return `src="${repoUrl}${p1}"`;
-                }
-                return match;
-            });
-
-            document.getElementById(`repoContent-${index}`).innerHTML = data;
-        })
-        .catch(error => {
-            document.getElementById(`repoContent-${index}`).innerHTML = '<p>README could not be loaded.</p>';
-        });
-}
+// loadReadme() is defined in default.html layout and handles:
+// - image src fixing, anchor namespacing, image-link stripping, MathJax re-render
 
 // Initial load of repositories
 fetchAllRepos();
