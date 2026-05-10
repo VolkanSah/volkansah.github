@@ -40,6 +40,23 @@
             background-color: #161B22;
         }
 
+        /* Smooth scroll globally */
+        html {
+            scroll-behavior: smooth;
+        }
+        /* modal-body scrollbar smooth */
+        .modal-body {
+            scroll-behavior: smooth;
+        }
+        /* Smooth modal fade — Bootstrap uses .fade already, just extend transition */
+        .modal.fade .modal-dialog {
+            transition: transform 0.25s ease-out, opacity 0.25s ease-out;
+            transform: translateY(-12px);
+        }
+        .modal.show .modal-dialog {
+            transform: translateY(0);
+        }
+
         /* Typewriter nav links */
         .nav-link-type {
             display: inline-block;
@@ -430,6 +447,7 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
+<script src="{{ '/assets/js/modal-render-math.js' | relative_url }}"></script>
 
 <script>
 /* Load README — preserve user's ToC, patch its links to our heading IDs */
@@ -515,19 +533,8 @@ function loadReadme(repoFullName, index) {
       }
     });
 
-    // MathJax re-render
-    if (window.MathJax && MathJax.typesetPromise) {
-      MathJax.typesetPromise([container]).catch(e => console.error('MathJax:', e));
-    } else if (window.renderMathInElement) {
-      renderMathInElement(container, {
-        delimiters: [
-          {left:'$$',right:'$$',display:true},
-          {left:'$',right:'$',display:false},
-          {left:'\\(',right:'\\)',display:false},
-          {left:'\\[',right:'\\]',display:true}
-        ]
-      });
-    }
+    // Hand off to modal-render-math.js for MathJax/KaTeX
+    insertReadmeHtmlAndRender(container.innerHTML, container);
   })
   .catch(() => {
     document.getElementById(`repoContent-${index}`).innerHTML = '<p>README could not be loaded.</p>';
