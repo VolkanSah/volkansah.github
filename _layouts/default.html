@@ -298,7 +298,39 @@
                 width: 100%;
                 margin: 20px 0;
             }
-        }               
+        }
+
+        /* Table of Contents — generated per modal */
+        .readme-toc {
+            background-color: #161B22;
+            border: 1px solid #05172c;
+            border-radius: 2px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+        .readme-toc strong {
+            display: block;
+            color: #C9D1D9;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .readme-toc ol {
+            margin: 0;
+            padding-left: 18px;
+        }
+        .readme-toc li {
+            padding: 2px 0;
+        }
+        .readme-toc a {
+            color: #58A6FF;
+        }
+        .readme-toc a:hover {
+            color: #1F6FEB;
+            text-decoration: underline;
+        }
 </style>
 </head>
 <body>
@@ -397,66 +429,112 @@
 <script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
 
 <script>
-/* Function to load README file from GitHub repository */
+/* Load README and build a fresh ToC from the actual DOM headings */
 function loadReadme(repoFullName, index) {
   fetch(`https://api.github.com/repos/${repoFullName}/readme`, {
     headers: { 'Accept': 'application/vnd.github.v3.html' }
   })
   .then(response => response.text())
   .then(data => {
-    // Fix image src — use raw.githubusercontent so images actually load
+    // Fix relative image src → raw.githubusercontent
     const repoUrl = `https://raw.githubusercontent.com/${repoFullName}/master/`;
     data = data.replace(/src="([^"]+)"/g, (match, p1) => {
-      if (!p1.startsWith('http') && !p1.startsWith('//')) {
-        return `src="${repoUrl}${p1}"`;
-      }
+      if (!p1.startsWith('http') && !p1.startsWith('//')) return `src="${repoUrl}${p1}"`;
       return match;
     });
 
-    // Fix anchor links so ToC works inside the modal
-    // Anchor hrefs point to namespaced IDs, clicks scroll inside modal-body
-    data = data.replace(/href="#([^"]+)"/g, (match, p1) => {
-      return `href="#repoContent-${index}-${p1}" onclick="scrollModalTo('repoContent-${index}','repoContent-${index}-${p1}');return false;"`;
+    // Strip ALL existing anchor wrappers inside headings — GitHub adds
+    // <h2><a id="user-content-xyz" href="#xyz" ...></a> Heading text</h2>
+    // We don't want those — IDs go on the <hN> itself (see DOM step below)
+    data = data.replace(/<(h[1-5])[^>]*>(\s*<a[^>]*><\/a>\s*)?([\s\S]*?)<\/\1>/gi, (match, tag, anchor, inner) => {
+      // Strip any remaining <a> tags inside the heading text but keep the text
+      const cleanInner = inner.replace(/<a[^>]*>([\s\S]*?)<\/a>/gi, '$1').trim();
+      return `<${tag}>${cleanInner}</${tag}>`;
     });
 
-    // Namespace all IDs to avoid collisions between modals
-    data = data.replace(/\bid="([^"]+)"/g, (match, p1) => {
-      return `id="repoContent-${index}-${p1}"`;
-    });
+    // Strip link wrappers around images — keep <img>, drop <a>
+    data = data.replace(/<a[^>]*>\s*(<img[^>]*\/?>)\s*<\/a>/gi, '$1');
 
-    // Strip link wrappers around images so clicks don't navigate away
-    // GitHub wraps <a href="..."><img ...></a> — we keep the img, drop the anchor
-    data = data.replace(/<a[^>]*>\s*(<img[^>]*>)\s*<\/a>/gi, '$1');
+    // Remove all original ToC lists that GitHub may have rendered
+    // (any <ul>/<ol> that only contains anchor links pointing to #headings)
+    // We'll replace with our own ToC after DOM injection
 
     const container = document.getElementById(`repoContent-${index}`);
     container.innerHTML = data;
 
-    // MathJax re-render if available
+    // --- DOM pass: assign clean IDs to headings and build ToC ---
+    const headings = container.querySelectorAll('h1,h2,h3,h4,h5');
+    const tocItems = [];
+
+    headings.forEach((h, i) => {
+      // Slug from text content: lowercase, spaces→hyphens, strip non-alphanum
+      const slug = h.textContent.trim()
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
+      const id = `repoContent-${index}-${i + 1}-${slug}`;
+      h.id = id;
+
+      tocItems.push({ id, text: h.textContent.trim(), level: parseInt(h.tagName[1]) });
+    });
+
+    // Only build ToC if there are at least 3 headings
+    if (tocItems.length >= 3) {
+      const tocEl = document.createElement('div');
+      tocEl.className = 'readme-toc';
+      tocEl.innerHTML = '<strong>Table of Contents</strong>';
+      const ol = document.createElement('ol');
+      tocItems.forEach(item => {
+        const li = document.createElement('li');
+        li.style.marginLeft = ((item.level - 1) * 12) + 'px';
+        const a = document.createElement('a');
+        a.href = '#' + item.id;
+        a.textContent = item.text;
+        a.addEventListener('click', function(e) {
+          e.preventDefault();
+          scrollModalTo(`repoContent-${index}`, item.id);
+        });
+        li.appendChild(a);
+        ol.appendChild(li);
+      });
+      tocEl.appendChild(ol);
+      // Insert ToC before first element in container
+      container.insertBefore(tocEl, container.firstChild);
+    }
+
+    // MathJax re-render
     if (window.MathJax && MathJax.typesetPromise) {
       MathJax.typesetPromise([container]).catch(e => console.error('MathJax:', e));
     } else if (window.renderMathInElement) {
       renderMathInElement(container, {
         delimiters: [
-          {left: "$$", right: "$$", display: true},
-          {left: "$", right: "$", display: false},
-          {left: "\\(", right: "\\)", display: false},
-          {left: "\\[", right: "\\]", display: true}
+          {left:'$$',right:'$$',display:true},
+          {left:'$',right:'$',display:false},
+          {left:'\\(',right:'\\)',display:false},
+          {left:'\\[',right:'\\]',display:true}
         ]
       });
     }
   })
-  .catch(error => {
+  .catch(() => {
     document.getElementById(`repoContent-${index}`).innerHTML = '<p>README could not be loaded.</p>';
   });
 }
 
-// Scroll to anchor inside modal-body without jumping the whole page
+// Scroll anchor target into view inside modal-body
 function scrollModalTo(modalBodyId, targetId) {
   const modalBody = document.getElementById(modalBodyId);
   const target = document.getElementById(targetId);
   if (!modalBody || !target) return;
-  const offset = target.offsetTop - modalBody.offsetTop;
-  modalBody.scrollTo({ top: offset - 16, behavior: 'smooth' });
+  // target.offsetTop is relative to its offsetParent, walk up to modalBody
+  let top = 0;
+  let el = target;
+  while (el && el !== modalBody) {
+    top += el.offsetTop;
+    el = el.offsetParent;
+  }
+  modalBody.scrollTo({ top: top - 16, behavior: 'smooth' });
 }
 
 // Typewriter effect for nav links
